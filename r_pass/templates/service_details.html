@@ -1,0 +1,24 @@
+<style>
+    .secret_token .hidden { display: none; }
+    .secret_token:hover .hidden { display: block; }
+    .secret_token:hover .hint { display: none; }
+</style>
+<h1>{{ service.title }}</h1>
+
+<ul>
+    {% for host in hosts %}
+        <li>{{ host.cname }}</li>
+    {% endfor %}
+</ul>
+
+<ul>
+    {% for access in tokens %}
+    <p>name: {{ access.name }}</p>
+    <p>description: {{ access.description }}</p>
+    <p>user: {{ access.user }}</p>
+    <div  class="secret_token">token:
+        <div class="hint">Mouse over to view</div>
+        <div class="hidden">{{ access.access_token }}</div></div>
+    {% endfor %}
+</ul>
+
