@@ -5,10 +5,14 @@ import re
 class Host(models.Model):
     cname = models.CharField(max_length=250, unique=True)
 
+class Group(models.Model):
+    source_id = models.CharField(max_length=250, unique=True)
+
 class Service(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     hosts = models.ManyToManyField(Host)
+    groups = models.ManyToManyField(Group)
 
     def view_url(self):
         url_title = self.title
