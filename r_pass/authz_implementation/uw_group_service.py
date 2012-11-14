@@ -11,3 +11,6 @@ class UWGroupService():
                 return True
 
         return False
+
+    def group_display_name(self, source_id):
+        return source_id

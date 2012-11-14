@@ -5,12 +5,21 @@
 </style>
 <h1>{{ service.title }}</h1>
 
+<h2>Hosts</h2>
 <ul>
     {% for host in hosts %}
         <li>{{ host.cname }}</li>
     {% endfor %}
 </ul>
 
+<h2>Groups who can see this</h2>
+<ul>
+    {% for group in groups %}
+        <li>{{ group.display }} (Group id: {{group.id}})</li>
+    {% endfor %}
+</ul>
+
+<h2>Access details</h2>
 <ul>
     {% for access in tokens %}
     <p>name: {{ access.name }}</p>

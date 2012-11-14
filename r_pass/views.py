@@ -39,6 +39,12 @@ def service(request, service_id):
     data["hosts"] = service.hosts.all()
     data["tokens"] = AccessToken.objects.filter(service=service)
 
+    data["groups"] = []
+    for group in service.groups.all():
+        data["groups"].append({
+            "display": authz.group_display_name(group.source_id),
+            "id": group.source_id,
+        })
     return render_to_response("service_details.html", data)
 
 

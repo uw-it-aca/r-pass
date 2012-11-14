@@ -11,6 +11,11 @@ class AuthZ():
     def has_access_to_service(self, user_name, service):
         return self._backend.has_access_to_service(user_name, service)
 
+    def group_display_name(self, group_source_id):
+        if hasattr(self._backend, "group_display_name"):
+            return self._backend.group_display_name(group_source_id)
+        return group_source_id
+
     def _get_backend_module(self):
         if hasattr(settings, "R_PASS_GROUP_BACKEND"):
             # This is all taken from django's static file finder
