@@ -4,12 +4,10 @@
 from restclients.gws import GWS
 
 class UWGroupService():
-    def has_access_to_service(self, user_name, service):
+    def is_member_of_group(self, user_name, group_source_id):
         gws = GWS()
-        for group in service.groups.all():
-            if gws.is_effective_member(group.source_id, user_name):
-                return True
-
+        if gws.is_effective_member(group_source_id, user_name):
+            return True
         return False
 
     def group_display_name(self, source_id):

@@ -1,3 +1,3 @@
 class AllFail():
-    def has_access_to_service(self, user_name, service):
+    def is_member_of_group(self, user_name, group_source_id):
         return False

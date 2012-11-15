@@ -8,8 +8,14 @@ class AuthZ():
     def __init__(self):
         self._backend = self._get_backend_module()
 
+    def is_member_of_group(self, user_name, group):
+        return self._backend.is_member_of_group(user_name, group)
+
     def has_access_to_service(self, user_name, service):
-        return self._backend.has_access_to_service(user_name, service)
+        for group in service.groups.all():
+            if self.is_member_of_group(user_name, group.source_id):
+                return True
+        return False
 
     def group_display_name(self, group_source_id):
         if hasattr(self._backend, "group_display_name"):
