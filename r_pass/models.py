@@ -20,6 +20,9 @@ class Service(models.Model):
         url_title =re.sub(r'-*$', '', url_title)
         return "/service/%s/%i" % (url_title, self.pk)
 
+    def edit_url(self):
+        return "%s/edit" % self.view_url()
+
     def __unicode__(self):
         return "ID: %s, Title: %s" % (self.pk, self.title)
 

@@ -24,7 +24,7 @@ def home(request):
     return render_to_response('services.html', data)
 
 @login_required
-def create(request):
+def _create_or_edit(request, service):
     if request.method == 'POST':
         form = ServiceForm(request.POST)
         if form.is_valid():
@@ -41,9 +41,11 @@ def create(request):
                     break
 
             if can_view_new_service:
-                service = Service()
                 service.title = form.cleaned_data["title"]
                 service.description = form.cleaned_data["description"]
+                service_is_new = True
+                if service.pk:
+                    service_is_new = False
                 service.save()
 
                 for host in hosts:
@@ -54,6 +56,7 @@ def create(request):
                     model, create = Group.objects.get_or_create(source_id=group)
                     service.groups.add(model)
 
+                AccessToken.objects.filter(service=service).delete()
                 access_token = AccessToken()
                 access_token.name = form.cleaned_data["access_name"]
                 access_token.description = form.cleaned_data["access_description"]
@@ -63,18 +66,64 @@ def create(request):
 
                 access_token.save()
 
-                _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
+                if service_is_new:
+                    _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
+                else:
+                    _log(request, "Edited service id: %s, name: %s" % (service.pk, service.title))
                 return HttpResponseRedirect(service.view_url())
             else:
                 form._errors["groups"] = form.error_class(["You don't have access to this service with the groups given"])
 
     else:
-        form = ServiceForm()
+        data = None
+        if service:
+            data = {}
+            data["title"] = service.title
+            data["description"] = service.description
+
+            groups = service.groups.all()
+            data["groups"] = "\n".join(map(lambda x: x.source_id, groups))
+            hosts = service.hosts.all()
+            data["hosts"] = "\n".join(map(lambda x: x.cname, hosts))
+
+            access_tokens = AccessToken.objects.filter(service=service)
+            if len(access_tokens):
+                token = access_tokens[0]
+                data["access_name"] = token.name
+                data["access_description"] = token.description
+                data["access_user"] = token.user
+                data["access_token"] = token.access_token
+        form = ServiceForm(data)
+
+    if service and service.pk:
+        submit_url = service.edit_url()
+    else:
+        submit_url = "/create"
 
     context = {}
     context.update(csrf(request))
     context["form"] = form
-    return render_to_response('create.html', context)
+    context["submit_url"] = submit_url
+    return render_to_response('create_edit.html', context)
+
+@login_required
+def create(request):
+    return _create_or_edit(request, None)
+
+@login_required
+def edit(request, service_id):
+    service = None
+    try:
+        service = Service.objects.get(pk=service_id)
+    except ObjectDoesNotExist:
+        return HttpResponse("Not Found", status=404,)
+
+    authz = AuthZ()
+    if not authz.has_access_to_service(request.user, service):
+        _log(request, "Tried to view service - no access.  id: %s, name: %s" % (service.pk, service.title))
+        return HttpResponse(status=403)
+
+    return _create_or_edit(request, service)
 
 @login_required
 def service(request, service_id):
@@ -102,6 +151,8 @@ def service(request, service_id):
             "display": authz.group_display_name(group.source_id),
             "id": group.source_id,
         })
+
+    data["edit_url"] = service.edit_url()
     return render_to_response("service_details.html", data)
 
 

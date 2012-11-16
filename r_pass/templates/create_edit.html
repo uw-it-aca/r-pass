@@ -1,6 +1,28 @@
+<script>
+function make_random() {
+var chars = []
+    for (i=48; i < 127; i++) {
+        chars.push(String.fromCharCode(i));
+    }
+
+    var passchars = []
+    for (i = 0; i < 32; i++) {
+        var rand = chars[Math.floor(Math.random() * chars.length)];
+        passchars.push(rand);
+    }
+
+    var password = passchars.join("");
+
+    document.getElementById("id_access_token").value = password;
+    return false;
+}
+</script>
 Create a new service:
 
-<form action="/create" method="post">{% csrf_token %}
+<form action="{{ submit_url }}" method="post">{% csrf_token %}
 {{ form.as_p }}
+<a href="javascript:void(0)" onclick="javascript:make_random()">I'd like a random password</a> (don't forget to actually set the password...)
+<br />
+<br />
 <input type="Submit" value="submit"/>
 </form>
