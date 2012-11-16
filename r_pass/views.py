@@ -31,30 +31,43 @@ def create(request):
             hosts = form.cleaned_data["hosts"].split()
             groups = form.cleaned_data["groups"].split()
 
-            service = Service()
-            service.title = form.cleaned_data["title"]
-            service.description = form.cleaned_data["description"]
-            service.save()
-
-            for host in hosts:
-                model, create = Host.objects.get_or_create(cname=host)
-                service.hosts.add(model)
-
+            can_view_new_service = False
+            authz = AuthZ()
+            # Check to make sure the user will have access to the
+            # credential they're creating
             for group in groups:
-                model, create = Group.objects.get_or_create(source_id=group)
-                service.groups.add(model)
+                if authz.is_member_of_group(request.user, group):
+                    can_view_new_service = True
+                    break
 
-            access_token = AccessToken()
-            access_token.name = form.cleaned_data["access_name"]
-            access_token.description = form.cleaned_data["access_description"]
-            access_token.user = form.cleaned_data["access_user"]
-            access_token.access_token= form.cleaned_data["access_token"]
-            access_token.service = service
+            if can_view_new_service:
+                service = Service()
+                service.title = form.cleaned_data["title"]
+                service.description = form.cleaned_data["description"]
+                service.save()
 
-            access_token.save()
+                for host in hosts:
+                    model, create = Host.objects.get_or_create(cname=host)
+                    service.hosts.add(model)
 
-            _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
-            return HttpResponseRedirect(service.view_url())
+                for group in groups:
+                    model, create = Group.objects.get_or_create(source_id=group)
+                    service.groups.add(model)
+
+                access_token = AccessToken()
+                access_token.name = form.cleaned_data["access_name"]
+                access_token.description = form.cleaned_data["access_description"]
+                access_token.user = form.cleaned_data["access_user"]
+                access_token.access_token= form.cleaned_data["access_token"]
+                access_token.service = service
+
+                access_token.save()
+
+                _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
+                return HttpResponseRedirect(service.view_url())
+            else:
+                form._errors["groups"] = form.error_class(["You don't have access to this service with the groups given"])
+
     else:
         form = ServiceForm()
 
