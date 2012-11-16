@@ -98,7 +98,7 @@ def _create_or_edit(request, service):
     if service and service.pk:
         submit_url = service.edit_url()
     else:
-        submit_url = "/create"
+        submit_url = "/r-pass/create"
 
     context = {}
     context.update(csrf(request))

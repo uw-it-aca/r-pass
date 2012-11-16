@@ -18,7 +18,7 @@ class Service(models.Model):
         url_title = self.title
         url_title = re.sub(r'[^\w]+', '-', url_title)
         url_title =re.sub(r'-*$', '', url_title)
-        return "/service/%s/%i" % (url_title, self.pk)
+        return "/r-pass/service/%s/%i" % (url_title, self.pk)
 
     def edit_url(self):
         return "%s/edit" % self.view_url()
