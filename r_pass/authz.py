@@ -8,6 +8,11 @@ class AuthZ():
     def __init__(self):
         self._backend = self._get_backend_module()
 
+    def group_membership_url(self, group):
+        if hasattr(self._backend, "group_membership_url"):
+            return self._backend.group_membership_url(group)
+        return None
+
     def is_member_of_group(self, user_name, group):
         return self._backend.is_member_of_group(user_name, group)
 

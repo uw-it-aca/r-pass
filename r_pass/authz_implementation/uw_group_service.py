@@ -12,3 +12,6 @@ class UWGroupService():
 
     def group_display_name(self, source_id):
         return source_id
+
+    def group_membership_url(self, group_source_id):
+        return "https://iam-tools.u.washington.edu/group_ws/v1/group/%s/member" % group_source_id

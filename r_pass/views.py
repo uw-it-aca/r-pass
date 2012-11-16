@@ -150,6 +150,7 @@ def service(request, service_id):
         data["groups"].append({
             "display": authz.group_display_name(group.source_id),
             "id": group.source_id,
+            "membership_url": authz.group_membership_url(group.source_id),
         })
 
     data["edit_url"] = service.edit_url()

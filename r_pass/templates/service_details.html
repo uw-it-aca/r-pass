@@ -15,7 +15,11 @@
 <h2>Groups who can see this</h2>
 <ul>
     {% for group in groups %}
-        <li>{{ group.display }} (Group id: {{group.id}})</li>
+        <li>{{ group.display }} (Group id: {{group.id}})
+            {% if group.membership_url %}
+            <a href="{{ group.membership_url }}" target="_blank">View membership</a>
+            {% endif %}
+        </li>
     {% endfor %}
 </ul>
 
