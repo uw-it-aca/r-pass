@@ -6,6 +6,7 @@ from django.core.context_processors import csrf
 from r_pass.models import Service, AccessToken, Host, Group
 from r_pass.forms import ServiceForm
 from r_pass.authz import AuthZ
+import logging
 
 @login_required
 def home(request):
@@ -52,6 +53,7 @@ def create(request):
 
             access_token.save()
 
+            _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
             return HttpResponseRedirect(service.view_url())
     else:
         form = ServiceForm()
@@ -72,8 +74,10 @@ def service(request, service_id):
 
     authz = AuthZ()
     if not authz.has_access_to_service(request.user, service):
+        _log(request, "Tried to view service - no access.  id: %s, name: %s" % (service.pk, service.title))
         return HttpResponse(status=403)
 
+    _log(request, "Viewed service id: %s, name: %s" % (service.pk, service.title))
     data = {}
     data["service"] = service
     data["hosts"] = service.hosts.all()
@@ -87,4 +91,8 @@ def service(request, service_id):
         })
     return render_to_response("service_details.html", data)
 
+
+def _log(request, message):
+    logger = logging.getLogger('r_pass.data_log')
+    logger.info("%s: %s", request.user, message)
 

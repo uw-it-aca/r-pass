@@ -20,6 +20,10 @@ class Service(models.Model):
         url_title =re.sub(r'-*$', '', url_title)
         return "/service/%s/%i" % (url_title, self.pk)
 
+    def __unicode__(self):
+        return "ID: %s, Title: %s" % (self.pk, self.title)
+
+
 class AccessToken(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField()
