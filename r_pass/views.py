@@ -49,10 +49,12 @@ def _create_or_edit(request, service):
                     service_is_new = False
                 service.save()
 
+                service.hosts.clear()
                 for host in hosts:
                     model, create = Host.objects.get_or_create(cname=host)
                     service.hosts.add(model)
 
+                service.groups.clear()
                 for group in groups:
                     model, create = Group.objects.get_or_create(source_id=group)
                     service.groups.add(model)
