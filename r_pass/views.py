@@ -76,7 +76,7 @@ def _create_or_edit(request, service):
 
     else:
         data = None
-        if service:
+        if service and service.pk:
             data = {}
             data["title"] = service.title
             data["description"] = service.description
