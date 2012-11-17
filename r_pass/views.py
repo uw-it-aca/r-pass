@@ -108,7 +108,7 @@ def _create_or_edit(request, service):
 
 @login_required
 def create(request):
-    return _create_or_edit(request, None)
+    return _create_or_edit(request, Service())
 
 @login_required
 def edit(request, service_id):
