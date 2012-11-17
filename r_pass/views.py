@@ -7,7 +7,7 @@ from r_pass.models import Service, AccessToken, Host, Group
 from r_pass.forms import ServiceForm
 from r_pass.authz import AuthZ
 import logging
-import markdown
+import markdown2
 
 @login_required
 def home(request):
@@ -143,10 +143,12 @@ def service(request, service_id):
     _log(request, "Viewed service id: %s, name: %s" % (service.pk, service.title))
     data = {}
     data["service"] = service
-    md = markdown.Markdown(safe_mode="escape")
+    md = markdown2.Markdown(safe_mode="escape")
     data["service_description"] = md.convert(service.description)
     data["hosts"] = service.hosts.all()
     data["tokens"] = AccessToken.objects.filter(service=service)
+    for token in data["tokens"]:
+        token.markdown_description = md.convert(token.description)
 
     data["groups"] = []
     for group in service.groups.all():

@@ -32,7 +32,7 @@
 <ul>
     {% for access in tokens %}
     <p>name: {{ access.name }}</p>
-    <p>description: {{ access.description }}</p>
+    <p>description: {{ access.markdown_description|safe }}</p>
     <p>user: {{ access.user }}</p>
     <div  class="secret_token">token:
         <div class="hint">Mouse over to view</div>
