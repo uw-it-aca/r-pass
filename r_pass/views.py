@@ -15,12 +15,13 @@ def home(request):
     data["services"] = []
     authz = AuthZ()
     services = Service.objects.all()
+    md = markdown2.Markdown(safe_mode="escape")
     for service in services:
         if authz.has_access_to_service(request.user, service):
             data["services"].append({
                 "title": service.title,
                 "url": service.view_url(),
-                "description": service.description,
+                "description": md.convert(service.description),
             })
     return render_to_response('services.html', data)
 
