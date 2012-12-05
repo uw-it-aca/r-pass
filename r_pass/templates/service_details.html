@@ -1,44 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <style>
     .secret_token .hidden { display: none; }
     .secret_token:hover .hidden { display: block; }
     .secret_token:hover .hint { display: none; }
 </style>
-<h1>{{ service.title }}</h1>
 
-<div>
-{{ service_description|safe }}
+<div class="services-detail">
+    <h1>{{ service.title }}</h1>
+
+    <div>
+    {{ service_description|safe }}
+    </div>
+
+
+    <h2>Hosts</h2>
+    <ul>
+        {% for host in hosts %}
+            <li>{{ host.cname }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Groups who can see this</h2>
+    <ul>
+        {% for group in groups %}
+            <li>{{ group.display }} (Group id: {{group.id}})
+                {% if group.membership_url %}
+                <a href="{{ group.membership_url }}" target="_blank">View membership</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Access details</h2>
+    <ul>
+        {% for access in tokens %}
+        <p>name: {{ access.name }}</p>
+        <p>description: {{ access.markdown_description|safe }}</p>
+        <p>user: {{ access.user }}</p>
+        <div  class="secret_token">token:
+            <div class="hint">Mouse over to view</div>
+            <div class="hidden">{{ access.access_token }}</div></div>
+        {% endfor %}
+    </ul>
+
+
 </div>
+{% endblock %}
 
-
-<h2>Hosts</h2>
-<ul>
-    {% for host in hosts %}
-        <li>{{ host.cname }}</li>
-    {% endfor %}
-</ul>
-
-<h2>Groups who can see this</h2>
-<ul>
-    {% for group in groups %}
-        <li>{{ group.display }} (Group id: {{group.id}})
-            {% if group.membership_url %}
-            <a href="{{ group.membership_url }}" target="_blank">View membership</a>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
-
-<h2>Access details</h2>
-<ul>
-    {% for access in tokens %}
-    <p>name: {{ access.name }}</p>
-    <p>description: {{ access.markdown_description|safe }}</p>
-    <p>user: {{ access.user }}</p>
-    <div  class="secret_token">token:
-        <div class="hint">Mouse over to view</div>
-        <div class="hidden">{{ access.access_token }}</div></div>
-    {% endfor %}
-</ul>
-
-
-<a href="{{ edit_url }}">Edit me</a>
+{% block action %}
+    <a class="btn btn-primary" href="{{ edit_url }}"><i class="icon-pencil icon-white"></i></a>
+{% endblock %}

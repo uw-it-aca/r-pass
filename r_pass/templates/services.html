@@ -1,10 +1,27 @@
-<ul>
-{% for service in services %}
-    <li>
-    Service name: <a href="{{ service.url }}">{{ service.title }}</a>
-    <p>{{ service.description|safe }}</p>
-    </li>
-{% endfor %}
-</ul>
+{% extends "base.html" %}
 
-<a href="/r-pass/create">Add a new service</a>
+{% block content %}
+<div class="services">
+
+    {% if services %}
+    <ul>
+    {% for service in services %}
+        <li>
+        Service name: <a href="{{ service.url }}">{{ service.title }}</a>
+        <p>{{ service.description|safe }}</p>
+        </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+
+        <p>you don't have any services</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block action %}
+    <a class="btn btn-primary" href="/r-pass/create"><i class="icon-plus icon-white"></i></a>
+{% endblock %}

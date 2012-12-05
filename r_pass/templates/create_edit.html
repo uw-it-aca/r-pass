@@ -1,3 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="services-create-edit">
+    Create a new service:
+
+    <form action="{{ submit_url }}" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <a href="javascript:void(0)" onclick="javascript:make_random()">I'd like a random password</a> (don't forget to actually set the password...)
+    <br />
+    <br />
+    <input type="Submit" value="submit" class="btn btn-primary" />
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 function make_random() {
 var chars = []
@@ -17,12 +35,5 @@ var chars = []
     return false;
 }
 </script>
-Create a new service:
+{% endblock %}
 
-<form action="{{ submit_url }}" method="post">{% csrf_token %}
-{{ form.as_p }}
-<a href="javascript:void(0)" onclick="javascript:make_random()">I'd like a random password</a> (don't forget to actually set the password...)
-<br />
-<br />
-<input type="Submit" value="submit"/>
-</form>
