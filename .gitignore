@@ -39,3 +39,5 @@ CACHE
 rpass.db
 include
 project
+.Python
+manage.py
