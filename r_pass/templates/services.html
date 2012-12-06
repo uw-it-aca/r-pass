@@ -7,8 +7,8 @@
     <ul>
     {% for service in services %}
         <li>
-        Service name: <a href="{{ service.url }}">{{ service.title }}</a>
-        <p>{{ service.description|safe }}</p>
+            <p>Service: <a href="{{ service.url }}">{{ service.title }}</a></p>
+            {{ service.description|safe }}
         </li>
     {% endfor %}
     </ul>

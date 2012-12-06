@@ -28,11 +28,14 @@ input[type="text"], input[type="password"], textarea { width: 93%; }
 
 .header { background: #555; height: 60px; line-height: 60px;
 
-     .logo { color: #fff; margin: 0; display: inline-block; font-size: 30px; margin-left: 15px;
+    .header-inner {
+        .logo { color: #fff; margin: 0; display: inline-block; font-size: 30px; margin-left: 15px;
          a { text-decoration: none; color: #ccc; }
 
-     }
-     .action { display: inline-block; margin-right: 15px; }
+         }
+         .action { display: inline-block; margin-right: 15px; }
+    }
+
 }
 
 .content {
@@ -51,14 +54,14 @@ input[type="text"], input[type="password"], textarea { width: 93%; }
 
 
     .services { margin: 15px;
-
         ul { margin: 0; padding: 0; }
-        li { background-color: #f3f3f3; margin-bottom: 20px; list-style: none; padding: 10px; .drop-shadow; .rounded-corners; }
+        li { background-color: #f3f3f3; margin-bottom: 20px; list-style: none; padding: 10px; .drop-shadow; .rounded-corners;  }
     }
 
-    .services-create-edit, .services-detail { margin: 15px; padding: 15px;
+    .services-create-edit, .services-detail { margin: 15px;
         background-color: #f3f3f3; .drop-shadow; .rounded-corners;
 
+        .services-content { padding: 15px; }
     }
 
 }
