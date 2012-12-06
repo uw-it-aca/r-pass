@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.context_processors import csrf
+from django.template import RequestContext
 from r_pass.models import Service, AccessToken, Host, Group
 from r_pass.forms import ServiceForm
 from r_pass.authz import AuthZ
@@ -11,6 +12,7 @@ import markdown2
 
 @login_required
 def home(request):
+    context = RequestContext(request, {})
     data = {}
     data["services"] = []
     authz = AuthZ()
@@ -23,7 +25,7 @@ def home(request):
                 "url": service.view_url(),
                 "description": md.convert(service.description),
             })
-    return render_to_response('services.html', data)
+    return render_to_response('services.html', data, context)
 
 @login_required
 def _create_or_edit(request, service):
@@ -104,7 +106,7 @@ def _create_or_edit(request, service):
     else:
         submit_url = "/r-pass/create"
 
-    context = {}
+    context = RequestContext(request, {})
     context.update(csrf(request))
     context["form"] = form
     context["submit_url"] = submit_url
@@ -131,6 +133,8 @@ def edit(request, service_id):
 
 @login_required
 def service(request, service_id):
+
+    context = RequestContext(request, {})
 
     service = None
     try:
@@ -162,7 +166,7 @@ def service(request, service_id):
         })
 
     data["edit_url"] = service.edit_url()
-    return render_to_response("service_details.html", data)
+    return render_to_response("service_details.html", data, context)
 
 
 def _log(request, message):

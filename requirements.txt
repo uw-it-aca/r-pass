@@ -1,3 +1,5 @@
 Django==1.4
 django-fields
 markdown2
+django-compressor
+BeautifulSoup

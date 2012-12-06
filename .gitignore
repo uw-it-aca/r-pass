@@ -33,3 +33,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+
+CACHE
+rpass.db
+include
+project
+.Python
+manage.py
