@@ -3,3 +3,5 @@ django-fields
 markdown2
 django-compressor
 BeautifulSoup
+-e git://github.com/vegitron/django-userservice#egg=Django-UserService
+-e git://github.com/vegitron/authz_group#egg=AuthZ-Group
