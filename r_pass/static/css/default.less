@@ -52,7 +52,6 @@ input[type="text"], input[type="password"], textarea { width: 93%; }
         }
     }
 
-
     .services { margin: 15px;
         ul { margin: 0; padding: 0; }
         li { background-color: #f3f3f3; margin-bottom: 20px; list-style: none; padding: 10px; .drop-shadow; .rounded-corners;  }
@@ -62,6 +61,17 @@ input[type="text"], input[type="password"], textarea { width: 93%; }
         background-color: #f3f3f3; .drop-shadow; .rounded-corners;
 
         .services-content { padding: 15px; }
+    }
+
+    .searchbar { width:650px; margin: auto; margin-top: 15px;
+        
+        .searchbar-text { margin: auto; background-color:#f4f4f4; border:1px solid #f3f3f3;
+            &:focus {
+                border: 1px solid #FFFFBD;
+                box-shadow: none;
+            }
+        }
+       
     }
 
 }
