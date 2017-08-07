@@ -20,7 +20,7 @@ class Service(models.Model):
     def view_url(self):
         url_title = self.title.lower()
         url_title = re.sub(r'[^\w]+', '-', url_title)
-        url_title =re.sub(r'-*$', '', url_title)
+        url_title = re.sub(r'-*$', '', url_title)
         return "/r-pass/service/%s/%i" % (url_title, self.pk)
 
     def edit_url(self):

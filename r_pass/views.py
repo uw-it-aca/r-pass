@@ -11,8 +11,8 @@ import markdown2
 
 def has_access_to_service(user, service):
     for group in service.groups.all():
-	if AuthZ().is_member_of_group(user, group.source_id):
-	    return
+        if AuthZ().is_member_of_group(user, group.source_id):
+            return
     raise PermissionDenied
 
 
@@ -73,7 +73,7 @@ def _create_or_edit(request, service):
                 access_token.description = (
                     form.cleaned_data["access_description"])
                 access_token.user = form.cleaned_data["access_user"]
-                access_token.access_token= form.cleaned_data["access_token"]
+                access_token.access_token = form.cleaned_data["access_token"]
                 access_token.service = service
                 access_token.save()
 
