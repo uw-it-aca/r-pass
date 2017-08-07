@@ -25,7 +25,7 @@ setup(
         'Django==1.10.5',
         'django-fields',
         'django-compressor',
-        'django-encrypted-fields',
+        'django-fernet-fields',
         'markdown2',
         'AuthZ-Group>=1.6',
         'UW-RestClients-GWS>=0.3,<1.0',

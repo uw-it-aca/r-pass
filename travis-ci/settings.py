@@ -60,8 +60,6 @@ ROOT_URLCONF = 'travis-ci.urls'
 
 WSGI_APPLICATION = 'travis-ci.wsgi.application'
 
-ENCRYPTED_FIELDS_KEYDIR = os.path.join(BASE_DIR, 'travis-ci/fieldkeys')
-
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 

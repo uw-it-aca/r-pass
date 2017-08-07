@@ -1,5 +1,5 @@
 from django.db import models
-from encrypted_fields import EncryptedTextField, EncryptedCharField
+from fernet_fields import EncryptedTextField, EncryptedCharField
 import re
 
 
