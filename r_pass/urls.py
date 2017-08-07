@@ -1,9 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
+from r_pass.views import home, service, create, edit
 
-urlpatterns = patterns('',
-    # Examples:
-    url(r'^service/.*/(?P<service_id>[0-9]+)/edit/?$', 'r_pass.views.edit'),
-    url(r'^service/.*/(?P<service_id>[0-9]+)/?$', 'r_pass.views.service'),
-    url(r'^create/?$', 'r_pass.views.create'),
-    url(r'', 'r_pass.views.home'),
-)
+
+urlpatterns = [
+    url(r'', home),
+    url(r'^service/.*/(?P<service_id>[0-9]+)/edit/?$', edit),
+    url(r'^service/.*/(?P<service_id>[0-9]+)/?$', service),
+    url(r'^create/?$', create),
+]

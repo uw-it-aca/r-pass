@@ -1,16 +1,15 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
+from r_pass.models import AccessToken, Service
 
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+class AccessTokenModelTest(TestCase):
+    def test_save(self):
+        pass
+
+
+class ServiceModelTest(TestCase):
+    def test_urls(self):
+        service = Service(id=1, title="Test Service")
+        self.assertEqual(service.view_url(), "/r-pass/service/test-service/1")
+        self.assertEqual(service.edit_url(), "/r-pass/service/test-service/1/edit")
+        self.assertEqual(str(service), "ID: 1, Title: Test Service")
