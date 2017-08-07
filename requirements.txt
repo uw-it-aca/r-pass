@@ -1,7 +1,1 @@
-Django==1.4
-django-fields
-markdown2
-django-compressor==1.2
-BeautifulSoup
--e git://github.com/vegitron/django-userservice#egg=Django-UserService
--e git://github.com/vegitron/authz_group#egg=AuthZ-Group
+-e .

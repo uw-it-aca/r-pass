@@ -1,55 +1,59 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.context_processors import csrf
-from django.template import RequestContext
+from django.core.exceptions import PermissionDenied
 from r_pass.models import Service, AccessToken, Host, Group
 from r_pass.forms import ServiceForm
-from r_pass.authz import AuthZ
+from authz_group import Group as AuthZ
 import logging
 import markdown2
 
+
+def has_access_to_service(user, service):
+    for group in service.groups.all():
+        if AuthZ().is_member_of_group(user, group.source_id):
+            return
+    raise PermissionDenied
+
+
 @login_required
 def home(request):
-    context = RequestContext(request, {})
-    data = {}
-    data["services"] = []
-    authz = AuthZ()
-    services = Service.objects.all()
+    context = {}
+    context["services"] = []
     md = markdown2.Markdown(safe_mode="escape")
-    for service in services:
-        if authz.has_access_to_service(request.user, service):
-            data["services"].append({
+    for service in Service.objects.all():
+        try:
+            has_access_to_service(request.user, service)
+            context["services"].append({
                 "title": service.title,
                 "url": service.view_url(),
                 "description": md.convert(service.description),
             })
-    return render_to_response('services.html', data, context)
+        except PermissionDenied:
+            pass
+    return render(request, "services.html", context)
+
 
 @login_required
 def _create_or_edit(request, service):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ServiceForm(request.POST)
         if form.is_valid():
             hosts = form.cleaned_data["hosts"].split()
             groups = form.cleaned_data["groups"].split()
 
-            can_view_new_service = False
-            authz = AuthZ()
             # Check to make sure the user will have access to the
             # credential they're creating
+            can_view_new_service = False
             for group in groups:
-                if authz.is_member_of_group(request.user, group):
+                if AuthZ().is_member_of_group(request.user, group):
                     can_view_new_service = True
                     break
 
             if can_view_new_service:
+                service_is_new = False if (service.pk) else True
                 service.title = form.cleaned_data["title"]
                 service.description = form.cleaned_data["description"]
-                service_is_new = True
-                if service.pk:
-                    service_is_new = False
                 service.save()
 
                 service.hosts.clear()
@@ -59,30 +63,35 @@ def _create_or_edit(request, service):
 
                 service.groups.clear()
                 for group in groups:
-                    model, create = Group.objects.get_or_create(source_id=group)
+                    model, create = Group.objects.get_or_create(
+                        source_id=group)
                     service.groups.add(model)
 
                 AccessToken.objects.filter(service=service).delete()
                 access_token = AccessToken()
                 access_token.name = form.cleaned_data["access_name"]
-                access_token.description = form.cleaned_data["access_description"]
+                access_token.description = (
+                    form.cleaned_data["access_description"])
                 access_token.user = form.cleaned_data["access_user"]
-                access_token.access_token= form.cleaned_data["access_token"]
+                access_token.access_token = form.cleaned_data["access_token"]
                 access_token.service = service
-
                 access_token.save()
 
                 if service_is_new:
-                    _log(request, "Created service id: %s, name: %s" % (service.pk, service.title))
+                    _log(request, "Created service id: %s, name: %s" % (
+                        service.pk, service.title))
                 else:
-                    _log(request, "Edited service id: %s, name: %s" % (service.pk, service.title))
+                    _log(request, "Edited service id: %s, name: %s" % (
+                        service.pk, service.title))
                 return HttpResponseRedirect(service.view_url())
             else:
-                form._errors["groups"] = form.error_class(["You don't have access to this service with the groups given"])
+                form._errors["groups"] = form.error_class(
+                    ["You don't have access to this service with "
+                     "the groups given"])
 
     else:
         data = None
-        if service and service.pk:
+        if (service and service.pk):
             data = {}
             data["title"] = service.title
             data["description"] = service.description
@@ -101,75 +110,75 @@ def _create_or_edit(request, service):
                 data["access_token"] = token.access_token
         form = ServiceForm(data)
 
-    if service and service.pk:
+    if (service and service.pk):
         submit_url = service.edit_url()
     else:
         submit_url = "/r-pass/create"
 
-    context = RequestContext(request, {})
-    context.update(csrf(request))
+    context = {}
     context["form"] = form
     context["submit_url"] = submit_url
-    return render_to_response('create_edit.html', context)
+    return render(request, "create_edit.html", context)
+
 
 @login_required
 def create(request):
     return _create_or_edit(request, Service())
 
+
 @login_required
 def edit(request, service_id):
-    service = None
     try:
         service = Service.objects.get(pk=service_id)
-    except ObjectDoesNotExist:
-        return HttpResponse("Not Found", status=404,)
-
-    authz = AuthZ()
-    if not authz.has_access_to_service(request.user, service):
-        _log(request, "Tried to view service - no access.  id: %s, name: %s" % (service.pk, service.title))
-        return HttpResponse(status=403)
+        has_access_to_service(request.user, service)
+    except Service.DoesNotExist:
+        return HttpResponse("Not Found", status=404)
+    except PermissionDenied:
+        _log(request, "Unauthorized to view service. id: %s, name: %s" % (
+            service.pk, service.title))
+        return HttpResponse("Unauthorized", status=403)
 
     return _create_or_edit(request, service)
 
+
 @login_required
 def service(request, service_id):
-
-    context = RequestContext(request, {})
-
-    service = None
     try:
         service = Service.objects.get(pk=service_id)
-    except ObjectDoesNotExist:
-        return HttpResponse("Not Found", status=404,)
+        has_access_to_service(request.user, service)
+    except Service.DoesNotExist:
+        return HttpResponse("Not Found", status=404)
+    except PermissionDenied:
+        _log(request, "Unauthorized to view service. id: %s, name: %s" % (
+            service.pk, service.title))
+        return HttpResponse("Unauthorized", status=403)
 
-    authz = AuthZ()
-    if not authz.has_access_to_service(request.user, service):
-        _log(request, "Tried to view service - no access.  id: %s, name: %s" % (service.pk, service.title))
-        return HttpResponse(status=403)
-
-    _log(request, "Viewed service id: %s, name: %s" % (service.pk, service.title))
-    data = {}
-    data["service"] = service
     md = markdown2.Markdown(safe_mode="escape")
-    data["service_description"] = md.convert(service.description)
-    data["hosts"] = service.hosts.all()
-    data["tokens"] = AccessToken.objects.filter(service=service)
-    for token in data["tokens"]:
+
+    context = {}
+    context["service"] = service
+    context["service_description"] = md.convert(service.description)
+    context["hosts"] = service.hosts.all()
+
+    context["tokens"] = AccessToken.objects.filter(service=service)
+    for token in context["tokens"]:
         token.markdown_description = md.convert(token.description)
 
-    data["groups"] = []
+    context["groups"] = []
     for group in service.groups.all():
-        data["groups"].append({
-            "display": authz.group_display_name(group.source_id),
+        context["groups"].append({
+            "display": AuthZ().group_display_name(group.source_id),
             "id": group.source_id,
-            "membership_url": authz.group_membership_url(group.source_id),
+            "membership_url": AuthZ().group_membership_url(group.source_id),
         })
 
-    data["edit_url"] = service.edit_url()
-    return render_to_response("service_details.html", data, context)
+    context["edit_url"] = service.edit_url()
+
+    _log(request, "Viewed service. id: %s, name: %s" % (
+        service.pk, service.title))
+    return render(request, "service_details.html", context)
 
 
 def _log(request, message):
-    logger = logging.getLogger('r_pass.data_log')
+    logger = logging.getLogger(__name__)
     logger.info("%s: %s", request.user, message)
-
